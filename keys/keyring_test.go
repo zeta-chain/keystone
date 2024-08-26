@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	//"github.com/stretchr/testify/assert"
-	btcsecp256k1 "github.com/btcsuite/btcd/btcec"
+	btcsecp256k1 "github.com/btcsuite/btcd/btcec/v2"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/stretchr/testify/require"
 
@@ -39,15 +39,15 @@ func TestCreateKeySecp256k1(t *testing.T) {
 	log.Printf("Pubkey: %v", pubkey)
 
 	require.Equal(t, key.KeyType(), KEYGEN_SECP256K1)
-	
+
 	if key.KeyType() == KEYGEN_SECP256K1 {
 		secp256k1key := pubkey.(*secp256k1.PubKey)
-		pub, err := btcsecp256k1.ParsePubKey(secp256k1key.Key, btcsecp256k1.S256())
+		pub, err := btcsecp256k1.ParsePubKey(secp256k1key.Key)
 
 		if err != nil {
 			log.Printf("Not a secp256k1 key?")
 		}
-		
+
 		log.Printf("Pub: %v", pub)
 
 		// Validate the signature made by the HSM key, but using the
@@ -57,7 +57,7 @@ func TestCreateKeySecp256k1(t *testing.T) {
 
 		log.Printf("TM blockchain address from pubkey: %v", secp256k1key.Address())
 	}
-	
+
 	err = key.Delete()
 	require.NoError(t, err)
 }
@@ -85,7 +85,7 @@ func TestCreateKeySecp256r1(t *testing.T) {
 	pub := key.PubKey()
 
 	// Tendermint address
-	log.Printf("AccAddress: %v", sdk.AccAddress( pub.Address()))
+	log.Printf("AccAddress: %v", sdk.AccAddress(pub.Address()))
 
 	// point a second key object to the same key to test equality
 	key2 := key
@@ -96,11 +96,11 @@ func TestCreateKeySecp256r1(t *testing.T) {
 	require.NoError(t, err)
 
 	// Generate a completely different key
-	key3, err := kr.NewKey( KEYGEN_SECP256R1, string(label2) )
+	key3, err := kr.NewKey(KEYGEN_SECP256R1, string(label2))
 	require.NoError(t, err)
 	log.Printf("Keys are equal (should be false)?: %v", key.Equals(*key3))
 
-	key4, err := kr.Key( string(label) )
+	key4, err := kr.Key(string(label))
 	require.NoError(t, err)
 
 	log.Printf("Keys are equal (should be true)?: %v", key4.Equals(*key))
